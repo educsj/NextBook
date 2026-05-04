@@ -10,25 +10,33 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useDatabase } from '@nozbe/watermelondb/hooks';
 import { searchBookByISBN, searchBooksByTitle } from '../services/googleBooksApi';
+import { addBook } from '../database/bookActions';
 import type { BookData } from '../types/book';
 import type { TabScreenProps } from '../types/navigation';
 
 type Mode = 'scanner' | 'manual';
 
 export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
+  const database = useDatabase();
   const [permission, requestPermission] = useCameraPermissions();
   const [mode, setMode] = useState<Mode>('scanner');
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [manualInput, setManualInput] = useState('');
   const [result, setResult] = useState<BookData | null>(null);
 
   useEffect(() => {
-    if (!permission?.granted) {
-      requestPermission();
-    }
+    if (!permission?.granted) requestPermission();
   }, []);
+
+  function resetState() {
+    setResult(null);
+    setManualInput('');
+    setScanned(false);
+  }
 
   async function handleBarcodeScan({ data }: { type: string; data: string }) {
     if (scanned || loading) return;
@@ -57,7 +65,6 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
     setLoading(true);
     setResult(null);
     try {
-      // Detecta se é ISBN (só números) ou título
       const isISBN = /^\d{10,13}$/.test(manualInput.replace(/-/g, ''));
       let book: BookData | null = null;
 
@@ -80,13 +87,18 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
     }
   }
 
-  function handleAddBook() {
+  async function handleAddBook() {
     if (!result) return;
-    // TODO: salvar no WatermelonDB
-    Alert.alert('Adicionado!', `"${result.title}" foi adicionado à sua estante.`);
-    setResult(null);
-    setManualInput('');
-    setScanned(false);
+    setSaving(true);
+    try {
+      await addBook(database, result);
+      Alert.alert('Adicionado!', `"${result.title}" foi adicionado à sua estante.`);
+      resetState();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível salvar o livro.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -94,12 +106,11 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
       <View className="px-4 pt-2 pb-3">
         <Text className="text-2xl font-bold text-gray-900 mb-3">Adicionar Livro</Text>
 
-        {/* Toggle de modo */}
         <View className="flex-row bg-gray-100 rounded-xl p-1">
           {(['scanner', 'manual'] as Mode[]).map((m) => (
             <TouchableOpacity
               key={m}
-              onPress={() => { setMode(m); setResult(null); setScanned(false); }}
+              onPress={() => { setMode(m); resetState(); }}
               className={`flex-1 h-9 items-center justify-center rounded-lg ${mode === m ? 'bg-white shadow-sm' : ''}`}
               style={mode === m ? { elevation: 1 } : {}}
             >
@@ -141,7 +152,6 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
                       <Text className="text-white mt-2">Buscando livro...</Text>
                     </View>
                   )}
-                  {/* Guia de escaneamento */}
                   <View className="absolute inset-0 items-center justify-center pointer-events-none">
                     <View className="w-64 h-20 border-2 border-white/80 rounded-lg" />
                   </View>
@@ -186,7 +196,6 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
           </View>
         )}
 
-        {/* Resultado da busca */}
         {result && (
           <View className="bg-white rounded-2xl p-4 mt-4 shadow-sm" style={{ elevation: 2 }}>
             <Text className="text-xs text-indigo-500 font-semibold mb-2 uppercase tracking-wide">
@@ -204,13 +213,17 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
             <TouchableOpacity
               className="bg-indigo-600 rounded-xl h-11 items-center justify-center mt-4"
               onPress={handleAddBook}
+              disabled={saving}
             >
-              <Text className="text-white font-semibold">Adicionar à Estante</Text>
+              {saving
+                ? <ActivityIndicator color="white" />
+                : <Text className="text-white font-semibold">Adicionar à Estante</Text>
+              }
             </TouchableOpacity>
 
             <TouchableOpacity
               className="mt-2 h-9 items-center justify-center"
-              onPress={() => { setResult(null); setScanned(false); }}
+              onPress={resetState}
             >
               <Text className="text-gray-400 text-sm">Cancelar</Text>
             </TouchableOpacity>

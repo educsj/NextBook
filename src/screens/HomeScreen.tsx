@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,46 +7,15 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { TabScreenProps } from '../types/navigation';
 import { useBookStore } from '../store/useBookStore';
+import { useBooks } from '../hooks/useBooks';
+import type Book from '../database/Book';
 
 type Filter = 'all' | 'read' | 'unread';
-
-// Placeholder de livro para desenvolvimento visual
-const MOCK_BOOKS = [
-  {
-    id: '1',
-    title: 'O Senhor dos Anéis',
-    author: 'J.R.R. Tolkien',
-    coverUrl: null,
-    totalPages: 1178,
-    readPages: 1178,
-    isRead: true,
-    rating: 5,
-  },
-  {
-    id: '2',
-    title: 'Duna',
-    author: 'Frank Herbert',
-    coverUrl: null,
-    totalPages: 688,
-    readPages: 320,
-    isRead: false,
-    rating: null,
-  },
-  {
-    id: '3',
-    title: 'Foundation',
-    author: 'Isaac Asimov',
-    coverUrl: null,
-    totalPages: 244,
-    readPages: 0,
-    isRead: false,
-    rating: null,
-  },
-];
 
 const FILTERS: { label: string; value: Filter }[] = [
   { label: 'Todos', value: 'all' },
@@ -67,15 +36,11 @@ function RatingStars({ rating }: { rating: number | null }) {
   );
 }
 
-function BookCard({
-  book,
-  onPress,
-}: {
-  book: (typeof MOCK_BOOKS)[0];
-  onPress: () => void;
-}) {
+function BookCard({ book, onPress }: { book: Book; onPress: () => void }) {
   const progress =
-    book.totalPages > 0 ? (book.readPages / book.totalPages) * 100 : 0;
+    book.totalPages && book.totalPages > 0
+      ? (book.readPages / book.totalPages) * 100
+      : 0;
 
   return (
     <TouchableOpacity
@@ -114,7 +79,7 @@ function BookCard({
             <View>
               <View className="flex-row justify-between mb-1">
                 <Text className="text-gray-400 text-xs">
-                  {book.readPages}/{book.totalPages} págs
+                  {book.readPages}/{book.totalPages ?? '?'} págs
                 </Text>
                 <Text className="text-indigo-500 text-xs font-medium">
                   {Math.round(progress)}%
@@ -136,27 +101,13 @@ function BookCard({
 
 export function HomeScreen({ navigation }: TabScreenProps<'Estante'>) {
   const { activeFilter, searchQuery, setFilter, setSearchQuery } = useBookStore();
-
-  const filtered = MOCK_BOOKS.filter((b) => {
-    const matchesFilter =
-      activeFilter === 'all' ||
-      (activeFilter === 'read' && b.isRead) ||
-      (activeFilter === 'unread' && !b.isRead);
-
-    const matchesSearch =
-      searchQuery.trim() === '' ||
-      b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.author.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesFilter && matchesSearch;
-  });
+  const { books, loading } = useBooks(activeFilter, searchQuery);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
       <View className="px-4 pt-2 pb-3">
         <Text className="text-2xl font-bold text-gray-900 mb-3">Minha Estante</Text>
 
-        {/* Busca */}
         <View className="flex-row items-center bg-white rounded-xl px-3 h-11 mb-3 border border-gray-100">
           <Text className="text-gray-400 mr-2">🔍</Text>
           <TextInput
@@ -173,7 +124,6 @@ export function HomeScreen({ navigation }: TabScreenProps<'Estante'>) {
           )}
         </View>
 
-        {/* Filtros */}
         <View className="flex-row gap-2">
           {FILTERS.map((f) => (
             <TouchableOpacity
@@ -197,23 +147,33 @@ export function HomeScreen({ navigation }: TabScreenProps<'Estante'>) {
         </View>
       </View>
 
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        contentContainerClassName="px-4 pb-6"
-        ListEmptyComponent={
-          <View className="items-center pt-16">
-            <Text className="text-4xl mb-3">📚</Text>
-            <Text className="text-gray-500 text-sm">Nenhum livro encontrado.</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <BookCard
-            book={item}
-            onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
-          />
-        )}
-      />
+      {loading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#4f46e5" />
+        </View>
+      ) : (
+        <FlatList
+          data={books}
+          keyExtractor={(item) => item.id}
+          contentContainerClassName="px-4 pb-6"
+          ListEmptyComponent={
+            <View className="items-center pt-16">
+              <Text className="text-4xl mb-3">📚</Text>
+              <Text className="text-gray-500 text-sm text-center">
+                {searchQuery
+                  ? 'Nenhum livro encontrado para essa busca.'
+                  : 'Sua estante está vazia.\nUse o Scanner para adicionar livros!'}
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <BookCard
+              book={item}
+              onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
+            />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

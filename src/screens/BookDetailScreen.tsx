@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,27 +7,14 @@ import {
   ScrollView,
   Image,
   Pressable,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDatabase } from '@nozbe/watermelondb/hooks';
 import type { RootStackScreenProps } from '../types/navigation';
-
-// Mock — será substituído por query do WatermelonDB
-const MOCK_BOOKS: Record<string, {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl: string | null;
-  totalPages: number;
-  readPages: number;
-  isRead: boolean;
-  rating: number | null;
-  notes: string;
-  isbn: string | null;
-}> = {
-  '1': { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', coverUrl: null, totalPages: 1178, readPages: 1178, isRead: true, rating: 5, notes: 'Uma obra-prima da fantasia.', isbn: '9780618640157' },
-  '2': { id: '2', title: 'Duna', author: 'Frank Herbert', coverUrl: null, totalPages: 688, readPages: 320, isRead: false, rating: null, notes: '', isbn: '9780441013593' },
-  '3': { id: '3', title: 'Foundation', author: 'Isaac Asimov', coverUrl: null, totalPages: 244, readPages: 0, isRead: false, rating: null, notes: '', isbn: null },
-};
+import { useBook } from '../hooks/useBook';
+import { updateBookDetails, deleteBook } from '../database/bookActions';
 
 function StarRating({
   value,
@@ -50,11 +37,30 @@ function StarRating({
 }
 
 export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'BookDetail'>) {
-  const book = MOCK_BOOKS[route.params.bookId];
+  const database = useDatabase();
+  const { book, loading } = useBook(route.params.bookId);
 
-  const [readPages, setReadPages] = useState(String(book?.readPages ?? 0));
-  const [rating, setRating] = useState<number | null>(book?.rating ?? null);
-  const [notes, setNotes] = useState(book?.notes ?? '');
+  const [readPages, setReadPages] = useState('');
+  const [rating, setRating] = useState<number | null>(null);
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // Sincroniza estado local quando o livro carregar do DB
+  useEffect(() => {
+    if (book) {
+      setReadPages(String(book.readPages));
+      setRating(book.rating);
+      setNotes(book.notes ?? '');
+    }
+  }, [book?.id]); // só na montagem (por id, não em cada update reativo)
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </SafeAreaView>
+    );
+  }
 
   if (!book) {
     return (
@@ -64,19 +70,53 @@ export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'Bo
     );
   }
 
-  const progress = book.totalPages > 0
-    ? Math.min((Number(readPages) / book.totalPages) * 100, 100)
-    : 0;
+  const parsedPages = parseInt(readPages, 10) || 0;
+  const progress =
+    book.totalPages && book.totalPages > 0
+      ? Math.min((parsedPages / book.totalPages) * 100, 100)
+      : 0;
+
+  async function handleSave() {
+    if (!book) return;
+    setSaving(true);
+    try {
+      await updateBookDetails(database, book, {
+        readPages: parsedPages,
+        rating,
+        notes,
+        isRead: book.totalPages !== null && parsedPages >= book.totalPages,
+      });
+      navigation.goBack();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível salvar as alterações.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    Alert.alert(
+      'Remover livro',
+      `Deseja remover "${book!.title}" da estante?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Remover',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteBook(database, book!);
+            navigation.goBack();
+          },
+        },
+      ],
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['bottom']}>
       <ScrollView contentContainerClassName="pb-10">
-        {/* Header com capa */}
         <View className="bg-indigo-600 pt-4 pb-10 px-4 items-center">
-          <TouchableOpacity
-            className="self-start mb-4"
-            onPress={() => navigation.goBack()}
-          >
+          <TouchableOpacity className="self-start mb-4" onPress={() => navigation.goBack()}>
             <Text className="text-white text-base">← Voltar</Text>
           </TouchableOpacity>
 
@@ -94,14 +134,13 @@ export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'Bo
         </View>
 
         <View className="px-4 -mt-6">
-          {/* Card principal */}
+          {/* Infos principais */}
           <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm" style={{ elevation: 2 }}>
             <Text className="text-xl font-bold text-gray-900">{book.title}</Text>
             <Text className="text-gray-500 mt-1">{book.author}</Text>
             {book.isbn && (
               <Text className="text-gray-400 text-xs mt-1">ISBN: {book.isbn}</Text>
             )}
-
             <View className="flex-row items-center mt-3">
               <View className={`px-3 py-1 rounded-full ${book.isRead ? 'bg-green-100' : 'bg-amber-100'}`}>
                 <Text className={`text-xs font-medium ${book.isRead ? 'text-green-700' : 'text-amber-700'}`}>
@@ -111,11 +150,10 @@ export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'Bo
             </View>
           </View>
 
-          {/* Progresso de leitura */}
+          {/* Progresso */}
           {!book.isRead && (
             <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm" style={{ elevation: 2 }}>
               <Text className="text-gray-800 font-semibold mb-3">Progresso de Leitura</Text>
-
               <View className="flex-row items-center gap-3 mb-3">
                 <TextInput
                   className="border border-gray-200 rounded-xl px-3 h-11 w-24 text-center text-gray-800"
@@ -124,9 +162,10 @@ export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'Bo
                   onChangeText={setReadPages}
                   maxLength={5}
                 />
-                <Text className="text-gray-500 text-sm">de {book.totalPages} páginas</Text>
+                <Text className="text-gray-500 text-sm">
+                  de {book.totalPages ?? '?'} páginas
+                </Text>
               </View>
-
               <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <View
                   className="h-full bg-indigo-500 rounded-full"
@@ -164,12 +203,22 @@ export function BookDetailScreen({ route, navigation }: RootStackScreenProps<'Bo
             />
           </View>
 
-          {/* Salvar */}
           <TouchableOpacity
-            className="bg-indigo-600 rounded-2xl h-12 items-center justify-center"
-            onPress={() => navigation.goBack()}
+            className="bg-indigo-600 rounded-2xl h-12 items-center justify-center mb-3"
+            onPress={handleSave}
+            disabled={saving}
           >
-            <Text className="text-white font-semibold">Salvar Alterações</Text>
+            {saving
+              ? <ActivityIndicator color="white" />
+              : <Text className="text-white font-semibold">Salvar Alterações</Text>
+            }
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="rounded-2xl h-12 items-center justify-center border border-red-200"
+            onPress={handleDelete}
+          >
+            <Text className="text-red-500 font-medium">Remover da Estante</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

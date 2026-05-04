@@ -8,17 +8,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { TabScreenProps } from '../types/navigation';
-
-// Mock — será substituído por query do WatermelonDB
-const UNREAD_BOOKS = [
-  { id: '2', title: 'Duna', author: 'Frank Herbert', totalPages: 688 },
-  { id: '3', title: 'Foundation', author: 'Isaac Asimov', totalPages: 244 },
-  { id: '4', title: 'Neuromancer', author: 'William Gibson', totalPages: 271 },
-  { id: '5', title: '1984', author: 'George Orwell', totalPages: 328 },
-];
+import { useBooks } from '../hooks/useBooks';
+import type Book from '../database/Book';
 
 export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
-  const [selected, setSelected] = useState<(typeof UNREAD_BOOKS)[0] | null>(null);
+  const { books: unreadBooks, loading } = useBooks('unread');
+  const [selected, setSelected] = useState<Book | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
 
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -31,7 +26,7 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
   });
 
   function handleDraw() {
-    if (isSpinning || UNREAD_BOOKS.length === 0) return;
+    if (isSpinning || unreadBooks.length === 0) return;
 
     setIsSpinning(true);
     setSelected(null);
@@ -60,7 +55,7 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
         ]),
       ]),
     ]).start(() => {
-      const picked = UNREAD_BOOKS[Math.floor(Math.random() * UNREAD_BOOKS.length)];
+      const picked = unreadBooks[Math.floor(Math.random() * unreadBooks.length)];
       setSelected(picked);
       setIsSpinning(false);
 
@@ -77,19 +72,16 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
       <View className="flex-1 px-4 pt-4">
         <Text className="text-2xl font-bold text-gray-900 mb-1">Sorteador</Text>
         <Text className="text-gray-500 text-sm mb-8">
-          {UNREAD_BOOKS.length} livros não lidos disponíveis
+          {loading ? 'Carregando...' : `${unreadBooks.length} livros não lidos disponíveis`}
         </Text>
 
-        {/* Área central do sorteio */}
         <View className="flex-1 items-center justify-center">
-          <Animated.View
-            style={{ transform: [{ rotate: spin }, { scale: scaleAnim }] }}
-          >
+          <Animated.View style={{ transform: [{ rotate: spin }, { scale: scaleAnim }] }}>
             <TouchableOpacity
               onPress={handleDraw}
-              disabled={isSpinning}
+              disabled={isSpinning || loading || unreadBooks.length === 0}
               className="w-44 h-44 rounded-full bg-indigo-600 items-center justify-center shadow-lg"
-              style={{ elevation: 8 }}
+              style={{ elevation: 8, opacity: unreadBooks.length === 0 && !loading ? 0.5 : 1 }}
             >
               <Text className="text-6xl">{isSpinning ? '🎲' : '📚'}</Text>
               <Text className="text-white font-bold mt-2 text-sm">
@@ -98,7 +90,6 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Resultado */}
           {selected && (
             <Animated.View
               className="w-full bg-white rounded-2xl p-5 mt-10 shadow-sm"
@@ -109,7 +100,9 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
               </Text>
               <Text className="text-gray-900 text-xl font-bold">{selected.title}</Text>
               <Text className="text-gray-500 mt-1">{selected.author}</Text>
-              <Text className="text-gray-400 text-xs mt-1">{selected.totalPages} páginas</Text>
+              {selected.totalPages && (
+                <Text className="text-gray-400 text-xs mt-1">{selected.totalPages} páginas</Text>
+              )}
 
               <View className="flex-row gap-3 mt-4">
                 <TouchableOpacity
@@ -128,7 +121,7 @@ export function RandomizerScreen({ navigation }: TabScreenProps<'Sorteador'>) {
             </Animated.View>
           )}
 
-          {UNREAD_BOOKS.length === 0 && (
+          {!loading && unreadBooks.length === 0 && (
             <View className="items-center mt-10">
               <Text className="text-gray-400 text-center text-sm">
                 Não há livros não lidos na estante.{'\n'}Adicione livros para sortear!
