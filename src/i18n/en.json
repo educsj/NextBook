@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "shelf": "Shelf",
+    "randomizer": "Randomizer"
+  },
+  "home": {
+    "title": "My Bookshelf",
+    "search_placeholder": "Search by title or author...",
+    "filter_all": "All",
+    "filter_read": "Read",
+    "filter_unread": "Unread",
+    "filter_borrowed": "Borrowed",
+    "empty_search": "No books found for this search.",
+    "empty_shelf": "Your shelf is empty.\nAdd your first book!",
+    "add_first": "Add My First Book",
+    "sort_title": "Sort by",
+    "sort_recent": "Most recent",
+    "sort_title_asc": "Title (A-Z)",
+    "sort_author_asc": "Author (A-Z)",
+    "sort_rating_desc": "Highest Rating",
+    "borrowed_badge": "Borrowed",
+    "borrowed_for": "for {{name}}",
+    "status_read": "Read",
+    "status_want": "Want to read",
+    "status_reading": "Reading"
+  },
+  "scanner": {
+    "title": "Add Book",
+    "tab_scanner": "ISBN Scanner",
+    "tab_manual": "Manual Search",
+    "camera_permission": "Camera permission is required to scan ISBNs.",
+    "allow_camera": "Allow Camera",
+    "aim_hint": "Point at the book's barcode",
+    "scan_again": "Scan again",
+    "searching": "Searching book...",
+    "manual_label": "Enter the ISBN (10 or 13 digits) or book title:",
+    "manual_hint": "Results appear automatically as you type.",
+    "found": "Book found",
+    "pages": "{{count}} pages",
+    "add_to_shelf": "Add to Shelf",
+    "cancel": "Cancel",
+    "other_editions": "Other editions or related"
+  },
+  "detail": {
+    "progress": "Reading Progress",
+    "of_pages": "of {{count}} pages",
+    "rating": "Rating",
+    "remove_rating": "Remove rating",
+    "notes": "Notes & Annotations",
+    "notes_placeholder": "Write your notes about this book...",
+    "details": "Additional Details",
+    "publisher": "Publisher",
+    "publisher_placeholder": "e.g. Penguin, HarperCollins...",
+    "genre": "Genre",
+    "genre_placeholder": "e.g. Science Fiction, Romance, Fantasy...",
+    "lend": "Lend Book",
+    "returned": "Returned!",
+    "save": "Save Changes",
+    "delete": "Remove from Shelf",
+    "status_read": "✓ Read",
+    "status_want": "⏳ Want to read",
+    "status_reading": "📖 Reading",
+    "borrowed_to": "Lent to {{name}}",
+    "lend_modal_title": "Lend book",
+    "lend_modal_subtitle": "Who are you lending \"{{title}}\" to?",
+    "lend_name_placeholder": "Friend's name",
+    "lend_confirm": "Confirm Loan",
+    "borrowed_since": "Since {{date}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "language": "Language",
+    "backup": "Data & Backup",
+    "export": "Export Backup",
+    "export_desc": "Saves all your books to a JSON file",
+    "import": "Import Backup",
+    "import_desc": "Restore your library from a JSON file",
+    "tip_title": "Backup tip",
+    "tip_desc": "Export your backup regularly and save it to Google Drive or email it so you don't lose your library."
+  },
+  "randomizer": {
+    "title": "Randomizer",
+    "subtitle": "Don't know what to read?",
+    "hint": "Draw a book from your shelf!",
+    "draw": "Draw a Book",
+    "redraw": "Draw another",
+    "start_reading": "Start Reading!",
+    "empty": "Add books to your shelf to use the randomizer."
+  },
+  "splash": {
+    "subtitle": "Your personal library"
+  },
+  "celebration": {
+    "title": "Book Completed!",
+    "message": "Congratulations! You finished",
+    "close": "Amazing! 🎉"
+  }
+}

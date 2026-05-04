@@ -5,6 +5,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 export type RootStackParamList = {
   Tabs: undefined;
   BookDetail: { bookId: string };
+  Settings: undefined;
 };
 
 export type TabParamList = {

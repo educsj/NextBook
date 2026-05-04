@@ -14,4 +14,11 @@ export default class Book extends Model {
   @field('is_synced') isSynced!: boolean;
   @field('rating') rating!: number | null;
   @text('notes') notes!: string | null;
+  @text('borrowed_to') borrowedTo!: string | null;
+  @field('borrowed_at') borrowedAt!: number | null;
+  @text('publisher') publisher!: string | null;
+  @text('genre') genre!: string | null;
+
+  @readonly @date('created_at') createdAt!: number;
+  @readonly @date('updated_at') updatedAt!: number;
 }

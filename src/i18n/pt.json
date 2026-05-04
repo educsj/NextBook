@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "shelf": "Estante",
+    "randomizer": "Sorteador"
+  },
+  "home": {
+    "title": "Minha Estante",
+    "search_placeholder": "Buscar por título ou autor...",
+    "filter_all": "Todos",
+    "filter_read": "Lidos",
+    "filter_unread": "Não lidos",
+    "filter_borrowed": "Emprestados",
+    "empty_search": "Nenhum livro encontrado para essa busca.",
+    "empty_shelf": "Sua estante está vazia.\nAdicione seu primeiro livro!",
+    "add_first": "Adicionar Meu Primeiro Livro",
+    "sort_title": "Ordenar por",
+    "sort_recent": "Mais recentes",
+    "sort_title_asc": "Título (A-Z)",
+    "sort_author_asc": "Autor (A-Z)",
+    "sort_rating_desc": "Maior Avaliação",
+    "borrowed_badge": "Emprestado",
+    "borrowed_for": "para {{name}}",
+    "status_read": "Lido",
+    "status_want": "Quero ler",
+    "status_reading": "Lendo"
+  },
+  "scanner": {
+    "title": "Adicionar Livro",
+    "tab_scanner": "Scanner ISBN",
+    "tab_manual": "Busca Manual",
+    "camera_permission": "Permissão de câmera necessária para escanear ISBN.",
+    "allow_camera": "Permitir Câmera",
+    "aim_hint": "Aponte para o código de barras do livro",
+    "scan_again": "Escanear novamente",
+    "searching": "Buscando livro...",
+    "manual_label": "Digite o ISBN (10 ou 13 dígitos) ou título do livro:",
+    "manual_hint": "Resultados aparecem automaticamente enquanto você digita.",
+    "found": "Livro encontrado",
+    "pages": "{{count}} páginas",
+    "add_to_shelf": "Adicionar à Estante",
+    "cancel": "Cancelar",
+    "other_editions": "Outras edições ou relacionados"
+  },
+  "detail": {
+    "progress": "Progresso de Leitura",
+    "of_pages": "de {{count}} páginas",
+    "rating": "Avaliação",
+    "remove_rating": "Remover avaliação",
+    "notes": "Notas & Anotações",
+    "notes_placeholder": "Escreva suas anotações sobre o livro...",
+    "details": "Detalhes Adicionais",
+    "publisher": "Editora",
+    "publisher_placeholder": "Ex: Intrínseca, Companhia das Letras...",
+    "genre": "Gênero",
+    "genre_placeholder": "Ex: Ficção Científica, Romance, Fantasia...",
+    "lend": "Emprestar Livro",
+    "returned": "Devolvido!",
+    "save": "Salvar Alterações",
+    "delete": "Remover da Estante",
+    "status_read": "✓ Lido",
+    "status_want": "⏳ Quero ler",
+    "status_reading": "📖 Em leitura",
+    "borrowed_to": "Emprestado para {{name}}",
+    "lend_modal_title": "Emprestar livro",
+    "lend_modal_subtitle": "Para quem você vai emprestar \"{{title}}\"?",
+    "lend_name_placeholder": "Nome do amigo",
+    "lend_confirm": "Confirmar Empréstimo",
+    "borrowed_since": "Desde {{date}}"
+  },
+  "settings": {
+    "title": "Configurações",
+    "appearance": "Aparência",
+    "theme_light": "Claro",
+    "theme_dark": "Escuro",
+    "theme_system": "Sistema",
+    "language": "Idioma",
+    "backup": "Dados & Backup",
+    "export": "Exportar Backup",
+    "export_desc": "Salva todos os seus livros em um arquivo JSON",
+    "import": "Importar Backup",
+    "import_desc": "Restaura sua biblioteca a partir de um arquivo JSON",
+    "tip_title": "Dica de backup",
+    "tip_desc": "Exporte o backup regularmente e salve no Google Drive ou envie por e-mail para não perder sua biblioteca."
+  },
+  "randomizer": {
+    "title": "Sorteador",
+    "subtitle": "Não sabe o que ler?",
+    "hint": "Sorteie um livro da sua estante!",
+    "draw": "Sortear Livro",
+    "redraw": "Sortear outro",
+    "start_reading": "Começar a Ler!",
+    "empty": "Adicione livros à sua estante para usar o sorteador."
+  },
+  "splash": {
+    "subtitle": "Sua biblioteca pessoal"
+  },
+  "celebration": {
+    "title": "Livro Concluído!",
+    "message": "Parabéns! Você terminou",
+    "close": "Incrível! 🎉"
+  }
+}
