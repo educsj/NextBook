@@ -111,8 +111,8 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
             <TouchableOpacity
               key={m}
               onPress={() => { setMode(m); resetState(); }}
-              className={`flex-1 h-9 items-center justify-center rounded-lg ${mode === m ? 'bg-white shadow-sm' : ''}`}
-              style={mode === m ? { elevation: 1 } : {}}
+              className={`flex-1 h-9 items-center justify-center rounded-lg ${mode === m ? 'bg-white' : ''}`}
+              style={mode === m ? { elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 } : {}}
             >
               <Text className={`text-sm font-medium ${mode === m ? 'text-indigo-600' : 'text-gray-500'}`}>
                 {m === 'scanner' ? '📷 Scanner ISBN' : '✏️ Busca Manual'}
@@ -147,13 +147,13 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
                     onBarcodeScanned={scanned ? undefined : handleBarcodeScan}
                   />
                   {loading && (
-                    <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                    <View className="absolute inset-0 items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                       <ActivityIndicator size="large" color="white" />
                       <Text className="text-white mt-2">Buscando livro...</Text>
                     </View>
                   )}
                   <View className="absolute inset-0 items-center justify-center pointer-events-none">
-                    <View className="w-64 h-20 border-2 border-white/80 rounded-lg" />
+                    <View className="w-64 h-20 border-2 rounded-lg" style={{ borderColor: 'rgba(255,255,255,0.8)' }} />
                   </View>
                 </View>
                 {scanned && !loading && !result && (
@@ -183,7 +183,7 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
                 returnKeyType="search"
               />
               <TouchableOpacity
-                className="bg-indigo-600 px-4 rounded-xl h-11 items-center justify-center"
+                style={{ backgroundColor: '#4f46e5', paddingHorizontal: 16, borderRadius: 12, height: 44, alignItems: 'center', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}
                 onPress={handleManualSearch}
                 disabled={loading}
               >
@@ -197,7 +197,7 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
         )}
 
         {result && (
-          <View className="bg-white rounded-2xl p-4 mt-4 shadow-sm" style={{ elevation: 2 }}>
+          <View className="bg-white rounded-2xl p-4 mt-4" style={{ elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 }}>
             <Text className="text-xs text-indigo-500 font-semibold mb-2 uppercase tracking-wide">
               Livro encontrado
             </Text>
@@ -211,7 +211,7 @@ export function ScannerScreen(_props: TabScreenProps<'Scanner'>) {
             )}
 
             <TouchableOpacity
-              className="bg-indigo-600 rounded-xl h-11 items-center justify-center mt-4"
+              style={{ backgroundColor: '#4f46e5', borderRadius: 12, height: 44, alignItems: 'center', justifyContent: 'center', marginTop: 16, opacity: saving ? 0.7 : 1 }}
               onPress={handleAddBook}
               disabled={saving}
             >

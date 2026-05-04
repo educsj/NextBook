@@ -6,7 +6,7 @@ import Book from './Book';
 const adapter = new SQLiteAdapter({
   schema,
   dbName: 'nextbook',
-  jsi: true,
+  jsi: false,
   onSetUpError: (error) => {
     console.error('WatermelonDB setup error:', error);
   },

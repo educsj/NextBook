@@ -45,8 +45,8 @@ function BookCard({ book, onPress }: { book: Book; onPress: () => void }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row bg-white rounded-2xl mb-3 p-3 shadow-sm"
-      style={{ elevation: 2 }}
+      className="flex-row bg-white rounded-2xl mb-3 p-3"
+      style={{ elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 }}
     >
       {book.coverUrl ? (
         <Image
