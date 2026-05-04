@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/educsj/NextBook/main/assets/icon.png" width="96" alt="NextBook logo" />
   <h1>NextBook</h1>
   <p><strong>Your personal bookshelf, always with you.</strong></p>
   <p><em>Sua biblioteca pessoal, sempre com você.</em></p>
